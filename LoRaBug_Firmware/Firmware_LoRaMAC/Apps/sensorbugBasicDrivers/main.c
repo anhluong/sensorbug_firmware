@@ -132,7 +132,7 @@ static uint8_t AppDataSize = LORAWAN_APP_DATA_SIZE;
 /*!
  * User application data buffer size
  */
-#define LORAWAN_APP_DATA_MAX_SIZE                           64
+#define LORAWAN_APP_DATA_MAX_SIZE                           128//64
 
 /*!
  * User application data
@@ -235,7 +235,7 @@ static void PrepareTxFrame( uint8_t port )
             message.count_in = 0;
             message.count_out = 0;
         } else if(mode == MODE_SENSORBUG) {
-            //uartprintf ("Sending %d/%d\r\nVoltage: %d\r\nLevel: %d\r\n", message.count_in, message.count_out, message.batteryVoltage, message.batteryLevel);
+            uartprintf ("Sending %d/%d\r\nVoltage: %d\r\nLevel: %d\r\n", message.count_in, message.count_out, message.batteryVoltage, message.batteryLevel);
             setPin(Board_HDR_HDIO1, true);
             //DELAY_MS(100);
             ADC_Handle   adc, adc1;
@@ -375,16 +375,16 @@ static void PrepareTxFrame( uint8_t port )
 
         AppDataSize = message_length;
 
-        pb_ostream_t stream = pb_ostream_from_buffer(AppData, sizeof(AppData));
-
-
-        status = pb_encode(&stream, SensorMessage_fields, &message);
-        message_length = stream.bytes_written;
-
-        AppDataSize = message_length;
+//        pb_ostream_t stream = pb_ostream_from_buffer(AppData, sizeof(AppData));
+//
+//
+//        status = pb_encode(&stream, SensorMessage_fields, &message);
+//        message_length = stream.bytes_written;
+//
+//        AppDataSize = message_length;
 
         if(!status) {
-            //uartprintf ("Encoding failed: %s\r\n", PB_GET_ERROR(&stream));
+            uartprintf ("Encoding failed: %s\r\n", PB_GET_ERROR(&stream));
         }
 
         break;
@@ -995,7 +995,7 @@ int dummy(UArg arg1, UArg arg2) {
  */
 int main(void)
 {
-//    Task_Params taskParams;
+    Task_Params taskParams;
 
     /* Call board init functions */
     Board_initGeneral();
@@ -1006,14 +1006,14 @@ int main(void)
     ADC_init();
 
     /* Construct heartBeat Task  thread */
-//    Task_Params_init(&taskParams);
-//    taskParams.arg0 = 1000000 / Clock_tickPeriod;
-//    taskParams.stackSize = TASKSTACKSIZE;
-//    taskParams.stack = &task0Stack;
-//    Task_construct(&task0Struct, (Task_FuncPtr) maintask, &taskParams, NULL);
+    Task_Params_init(&taskParams);
+    taskParams.arg0 = 1000000 / Clock_tickPeriod;
+    taskParams.stackSize = TASKSTACKSIZE;
+    taskParams.stack = &task0Stack;
+    Task_construct(&task0Struct, (Task_FuncPtr) maintask, &taskParams, NULL);
 
 //    pcService_createTask();
-    lightService_createTask();
+//    lightService_createTask();
 
     /* Open and setup pins */
     setuppins();
